@@ -24,11 +24,14 @@ class BOXARENA_API AAICube : public ACharacter
     /** Projectile class to spawn */
     UPROPERTY(EditDefaultsOnly, Category=Projectile)
     TSubclassOf<class ABullet> bullet_container;
+
+    FVector solid_color;
+
     void fireBullet();
 
     int dying_counter;
     int time_to_count;
-    volatile bool died;
+    volatile float target_distance;
 
     std::function<void()> toBeExecuted;
 
@@ -56,13 +59,16 @@ public:
     void assignAiId(int Id);
     int getAiId();
 
+    FVector &getSolidColor();
+
     void moveForward(float Value);
     void moveRight(float Value);
     void turn(FRotator &Rotation);
     void fire(float TimeToFire);
-
+    void setTargetDistance(float Distance);
 
     UPROPERTY(EditAnywhere)
     int cube_id;
+    volatile bool died;
 
 };

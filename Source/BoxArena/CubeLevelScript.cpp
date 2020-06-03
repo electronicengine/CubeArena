@@ -8,7 +8,7 @@
 
 
 
-ACubeLevelScript::ACubeLevelScript() : arena_size{8000.0f, 8000.0f, 55.0f}
+ACubeLevelScript::ACubeLevelScript() : arena_size{7000.0f, 7000.0f, 55.0f}
 {
 
     PrimaryActorTick.bCanEverTick = true;
@@ -17,7 +17,9 @@ ACubeLevelScript::ACubeLevelScript() : arena_size{8000.0f, 8000.0f, 55.0f}
     game_current_level = 1;
     time_to_count = 0;
     user_point = 0;
+    toBeExecuted = NULL;
 
+    spawned_num = 0;
 
 }
 
@@ -48,7 +50,7 @@ void ACubeLevelScript::BeginPlay()
 {
 
     Super::BeginPlay();
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Level-script: spawn"));
+//    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Level-script: spawn"));
 
     toBeExecuted = std::bind(&ACubeLevelScript::spawnAI, this);
 
@@ -60,7 +62,7 @@ void ACubeLevelScript::attachUserToLevelScript(AUserCube *UserCube)
 {
 
     user_cube = UserCube;
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("attachUserToLevelScript"));
+//    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("attachUserToLevelScript"));
 
 }
 
@@ -73,36 +75,41 @@ void ACubeLevelScript::aiBulletHitCallBack()
 
 
 
-void ACubeLevelScript::userBulletHitCallBack(AActor *HitActor, const FVector ImpactPoint)
+void ACubeLevelScript::userBulletHitCallBack(AAICube *AiCube, const FVector ImpactPoint)
 {
 
 
-    AAICube *cube = Cast<AAICube>(HitActor);
 
-    int cube_id = cube->getAiId();
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Enemy Kill Point - AI ID: ") + FString::FromInt(cube_id));
+    int cube_id = AiCube->getAiId();
 
+    std::list<AAICube *>::iterator it;
 
-    if(cube != NULL)
+    for(it = ai_list.begin(); it != ai_list.end(); it++)
     {
-        std::list<AAICube *>::iterator it;
-
-        for(it = ai_list.begin(); it != ai_list.end(); it++)
+        if(cube_id == (*it)->getAiId())
         {
-            if(cube_id == (*it)->getAiId())
-                ai_list.erase(it++);
+
+            spawned_num--;
+
+            user_cube->setSolidColor(AiCube->getSolidColor());
+
+            user_point++;
+            AiCube->killTheCube(ImpactPoint);
+
+
+            ai_list.erase(it++);
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Left AICube Num: ") + FString::FromInt(ai_list.size())
+                                            + "  - " + FString::FromInt(spawned_num));
 
         }
-
-        user_point++;
-        cube->killTheCube(ImpactPoint);
-
     }
 
 
-    if(ai_list.size() == 0)
+
+
+    if(spawned_num == 0)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Next Level "));
+//        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Next Level "));
         game_current_level++;
 
         toBeExecuted = std::bind(&ACubeLevelScript::spawnAI, this);
@@ -110,30 +117,29 @@ void ACubeLevelScript::userBulletHitCallBack(AActor *HitActor, const FVector Imp
 
 }
 
-void ACubeLevelScript::addList(AAICube *AICube)
-{
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Addlist "));
-
-    ai_list.push_back(AICube);
-}
-
 
 
 void ACubeLevelScript::spawnAI()
 {
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("Level-script: spawn"));
-
+    AAICube *ai_cube;
     for(int i=0; i<game_current_level * difficulty; ++i)
     {
+
 
         const FVector &random_location = FVector(FMath::RandRange(-arena_size.X, arena_size.X),
                                                  FMath::RandRange(-arena_size.Y, arena_size.Y), arena_size.Z);
 
-        GetWorld()->SpawnActor<AAICube>(ai_cube_container, random_location, FRotator(0,0,0));
+        ai_cube = GetWorld()->SpawnActor<AAICube>(ai_cube_container, random_location, FRotator(0,0,0));
+
+        ai_list.push_back(ai_cube);
+
     }
 
+    spawned_num = game_current_level * difficulty;
+
     waitUntilTick(50);
+
     toBeExecuted = std::bind(&ACubeLevelScript::assignIdtoAI, this);
 
 }

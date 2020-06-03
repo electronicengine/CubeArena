@@ -36,6 +36,8 @@ class BOXARENA_API AUserCube : public ACharacter
     UPROPERTY(EditDefaultsOnly, Category=Projectile)
     TSubclassOf<class ABullet> bullet_container;
 
+    FVector  solid_color;
+
     void moveForward(float Value);
     void moveRight(float Value);
     void lookUpRate(float Value);
@@ -58,6 +60,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+    void setSolidColor(const FVector &Color);
 
 };

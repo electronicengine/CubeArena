@@ -28,6 +28,9 @@ class BOXARENA_API ABullet : public AActor
     UPROPERTY(EditAnywhere)
     class UDestructibleComponent *destructable_component;
 
+    FVector solid_color;
+    AActor *bullet_owner;
+
 //    UPROPERTY(EditAnywhere)
 //    class UStaticMeshComponent *static_mesh;
 
@@ -36,7 +39,7 @@ class BOXARENA_API ABullet : public AActor
     float time_to_destroy;
     int time_counter;
 
-
+    volatile float example;
 public:	
 	// Sets default values for this actor's properties
 	ABullet();
@@ -51,13 +54,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-    volatile BulletOwner bullet_owner;
-
     UFUNCTION()
     void OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit);
     /** called when something enters the sphere component */
 
+    void setBulletOwner(AActor *Actor);
+    AActor *getBulletOwner();
 
-	
+    void setSolidColor(const FVector &Color);
+    FVector *getSolidColor();
 	
 };

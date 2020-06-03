@@ -9,7 +9,7 @@
 
 
 // Sets default values
-AAICube::AAICube()
+AAICube::AAICube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRange(0.0f, 0.2f), FMath::RandRange(0.0f, 0.2))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -20,7 +20,7 @@ AAICube::AAICube()
 
     dying_counter = 200;
     died = false;
-    time_to_count = 100;
+    time_to_count = 200;
     toBeExecuted = NULL;
 }
 
@@ -33,12 +33,8 @@ void AAICube::BeginPlay()
 
     level_script = Cast<ACubeLevelScript>(GetWorld()->GetLevelScriptActor());
 
-    level_script->addList(this);
-
     destructable_component->CreateDynamicMaterialInstance(0);
-    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), FVector(FMath::RandRange(0.0f, 0.2f),
-                                                                                       FMath::RandRange(0.0f, 0.2f),
-                                                                                       FMath::RandRange(0.0f, 0.3f)));
+    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 
 
 
@@ -57,19 +53,22 @@ void AAICube::Tick(float DeltaTime)
     {
         if(died != true)
         {
-            fireBullet();
-            time_to_count = 100;
+            if(target_distance <= 3500)
+                fireBullet();
+            time_to_count = 200;
         }
 
     }
 
     if(died == true)
     {
-        dying_counter--;
-        if(dying_counter == 0)
-            Destroy();
+//        dying_counter--;
+//        if(dying_counter == 0)
+//            Destroy();
     }
 
+    InitialLifeSpan = 0;
+    SetLifeSpan(0);
 
 }
 
@@ -86,9 +85,10 @@ void AAICube::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AAICube::killTheCube(const FVector &ImpactPoint)
 {
-    destructable_component->ApplyRadiusDamage(10.f, ImpactPoint, 10.0f, 10.0f, true);
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Cube Killing.."));
+    SetLifeSpan(40);
+    destructable_component->ApplyRadiusDamage(15.f, ImpactPoint, 5.0f, 5.0f, true);
     died = true;
-//    Destroy();
 }
 
 
@@ -98,7 +98,7 @@ void AAICube::assignAiId(int Id)
 
     cube_id = Id;
 
-    GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, TEXT("Cube Assigned ID: ") + FString::FromInt(cube_id));
+//    GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, TEXT("Cube Assigned ID: ") + FString::FromInt(cube_id));
 
 }
 
@@ -107,6 +107,11 @@ void AAICube::assignAiId(int Id)
 int AAICube::getAiId()
 {
     return cube_id;
+}
+
+FVector &AAICube::getSolidColor()
+{
+    return solid_color;
 }
 
 
@@ -146,8 +151,20 @@ void AAICube::turn(FRotator &Rotation)
 
 
 
+void AAICube:: setTargetDistance(float Distance)
+{
+    target_distance = Distance;
+
+
+}
+
+
+
 void AAICube::fireBullet()
 {
+
+    ABullet *bullet;
+
     if (bullet_container != NULL)
     {
         UWorld* const World = GetWorld();
@@ -159,12 +176,22 @@ void AAICube::fireBullet()
 
 
             spawn_rotation= GetActorRotation();
-            spawn_location = GetActorLocation() + (spawn_rotation.Vector() * 20) ;
+            spawn_location = GetActorLocation() + (spawn_rotation.Vector() * 30) ;
 
-            spawn_rotation.Pitch = spawn_rotation.Pitch + 1.5f;
+            if(target_distance >= 3200)
+                spawn_rotation.Pitch = spawn_rotation.Pitch + 2.5f;
+            else if((target_distance >= 5000))
+                spawn_rotation.Pitch = spawn_rotation.Pitch + 5.0f;
+            else if((target_distance >= 7000))
+                spawn_rotation.Pitch = spawn_rotation.Pitch + 6.0f;
+            else
+                spawn_rotation.Pitch = spawn_rotation.Pitch + 1.5f;
 
-            World->SpawnActor<ABullet>(bullet_container, spawn_location, spawn_rotation);
+//            spawn_rotation.GetDenormalized();
 
+            bullet = World->SpawnActor<ABullet>(bullet_container, spawn_location, spawn_rotation);
+            bullet->setSolidColor(solid_color);
+            bullet->setBulletOwner(this);
 
         }
     }

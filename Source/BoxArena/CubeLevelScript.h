@@ -35,6 +35,7 @@ class BOXARENA_API ACubeLevelScript : public ALevelScriptActor
     int game_current_level;
     int time_to_count;
     int user_point;
+    int spawned_num;
 
     void waitUntilTick(const int &TickToWait);
     void spawnAI();
@@ -65,9 +66,8 @@ public:
 
     void aiBulletHitCallBack();
 
-    void userBulletHitCallBack(AActor *HitActor, const FVector ImpactPoint);
+    void userBulletHitCallBack(AAICube *AiCube, const FVector ImpactPoint);
 
-    void addList(AAICube *AICube);
 
 
 

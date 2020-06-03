@@ -40,6 +40,7 @@ ABullet::ABullet()
 
     destroyed = false;
     hit = false;
+    example = 0;
 
 
 }
@@ -49,13 +50,13 @@ ABullet::ABullet()
 // Called when the game starts or when spawned
 void ABullet::BeginPlay()
 {
+
 	Super::BeginPlay();
 
     level_script = Cast<ACubeLevelScript>(GetWorld()->GetLevelScriptActor());
 
     destructable_component->CreateDynamicMaterialInstance(0);
-
-    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), FVector(0.2f, 0.1f, 0.3f));
+    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 
 }
 
@@ -75,13 +76,11 @@ void ABullet::Tick(float DeltaTime)
         {
             bool ret = Destroy();
 
-            if(ret == false)
-                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Bullet can not Destroyed"));
+//            if(ret == false)
+//                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Bullet can not Destroyed"));
 
         }
     }
-
-
 
 }
 
@@ -94,21 +93,30 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
     if((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
     {
 
-        if(hit == false)
+        if(hit == false && destroyed == false)
         {
             destroyed = true;
             hit = true;
 
             projectile_movement->StopMovementImmediately();
 
-
             AAICube *ai_cube = Cast<AAICube>(OtherActor);
 
-            if(ai_cube != NULL)
+            if(ai_cube != NULL && Cast<AAICube>(bullet_owner) == NULL)
             {
 
-                level_script->userBulletHitCallBack(OtherActor, Hit.ImpactPoint);
+                level_script->userBulletHitCallBack(ai_cube, Hit.ImpactPoint);
 
+            }
+            else
+            {
+                AUserCube *user_cube = Cast<AUserCube>(OtherActor);
+
+                if(user_cube != NULL && Cast<AUserCube>(bullet_owner) == NULL)
+                {
+                    level_script->aiBulletHitCallBack();
+
+                }
             }
 
         }
@@ -120,4 +128,31 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
 }
 
 
+
+void ABullet::setBulletOwner(AActor *Actor)
+{
+    bullet_owner = Actor;
+}
+
+
+
+AActor *ABullet::getBulletOwner()
+{
+    return bullet_owner;
+}
+
+
+
+void ABullet::setSolidColor(const FVector &Color)
+{
+    solid_color = Color;
+    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
+}
+
+
+
+FVector *ABullet::getSolidColor()
+{
+    return &solid_color;
+}
 

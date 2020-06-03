@@ -22,7 +22,7 @@
 #include "DestructibleComponent.h"
 
 
-AUserCube::AUserCube()
+AUserCube::AUserCube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRange(0.0f, 0.2f), FMath::RandRange(0.0f, 0.2))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
@@ -36,6 +36,8 @@ AUserCube::AUserCube()
     destructable_component = CreateDefaultSubobject<UDestructibleComponent>(TEXT("DestructableComponent"));
     destructable_component->SetupAttachment(RootComponent);
 
+
+ ;
     base_turn_rate = 45.0f;
     look_up_rate = 45.0f;
 
@@ -53,10 +55,7 @@ void AUserCube::BeginPlay()
     level_script->attachUserToLevelScript(this);
 
     destructable_component->CreateDynamicMaterialInstance(0);
-    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), FVector(FMath::RandRange(0.0f, 0.3f),
-                                                                                       FMath::RandRange(0.0f, 0.2f),
-                                                                                       FMath::RandRange(0.0f, 0.2)));
-
+    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 	
 }
 
@@ -85,6 +84,16 @@ void AUserCube::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("TurnRate", this, &AUserCube::baseTurnRate);
     PlayerInputComponent->BindAxis("LookUpRate", this, &AUserCube::lookUpRate);
+
+}
+
+
+
+void AUserCube::setSolidColor(const FVector &Color)
+{
+    solid_color = Color;
+
+    destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 
 }
 
@@ -134,6 +143,8 @@ void AUserCube::baseTurnRate(float Value)
 
 void AUserCube::fireBullet()
 {
+
+    ABullet *bullet_ptr;
     if (bullet_container != NULL)
     {
 
@@ -149,10 +160,10 @@ void AUserCube::fireBullet()
 //            spawn_rotation= GetActorRotation();
             spawn_location = GetActorLocation() + (spawn_rotation.Vector() * 20) ;
 
-
-            World->SpawnActor<ABullet>(bullet_container, spawn_location, spawn_rotation);
-
-            bullet_container.GetDefaultObject()->bullet_owner = BulletOwner::user;
+            bullet_ptr = World->SpawnActor<ABullet>(bullet_container,  spawn_location, spawn_rotation);
+//
+            bullet_ptr->setSolidColor(solid_color);
+            bullet_ptr->setBulletOwner(this);
 
         }
     }
