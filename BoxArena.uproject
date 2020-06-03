@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{C399F055-3BD0-4602-8E39-24608730B151}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "BoxArena",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"AIModule"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ApexDestruction",
+			"Enabled": true
+		}
+	]
+}
