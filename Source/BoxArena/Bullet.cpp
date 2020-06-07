@@ -7,7 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "DestructibleComponent.h"
 #include "Engine/Engine.h"
-
+#include "DestructableCubes.h"
 
 
 // Sets default values
@@ -115,6 +115,16 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
                 if(user_cube != NULL && Cast<AUserCube>(bullet_owner) == NULL)
                 {
                     level_script->aiBulletHitCallBack();
+
+                }
+                else
+                {
+                    ADestructableCubes * destructable_cubes = Cast<ADestructableCubes>(OtherActor);
+                    if(destructable_cubes != NULL)
+                    {
+                        level_script->destructibleHitCallBack();
+
+                    }
 
                 }
             }

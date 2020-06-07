@@ -6,10 +6,10 @@
 #include "GameFramework/Character.h"
 #include <thread>
 #include <functional>
-#include "Unix/UnixCriticalSection.h"
-#include "Runtime/Core/Public/HAL/ThreadingBase.h"
 #include "AICube.generated.h"
 
+
+#define FIRE_OFSETT_PITCH   2.0f
 
 UCLASS()
 class BOXARENA_API AAICube : public ACharacter
@@ -17,6 +17,9 @@ class BOXARENA_API AAICube : public ACharacter
 	GENERATED_BODY()
 
     class ACubeLevelScript *level_script;
+    FTimerHandle timer_handle_destroy;
+    FTimerHandle timer_handle_fire;
+
 
     UPROPERTY(EditAnywhere)
     class UDestructibleComponent *destructable_component;
@@ -27,11 +30,9 @@ class BOXARENA_API AAICube : public ACharacter
 
     FVector solid_color;
 
-    void fireBullet();
+    void eraseAI();
+    bool died;
 
-    int dying_counter;
-    int time_to_count;
-    volatile float target_distance;
 
     std::function<void()> toBeExecuted;
 
@@ -61,14 +62,17 @@ public:
 
     FVector &getSolidColor();
 
+    void jump();
     void moveForward(float Value);
     void moveRight(float Value);
-    void turn(FRotator &Rotation);
-    void fire(float TimeToFire);
-    void setTargetDistance(float Distance);
+    void turnThatRotation(const FRotator &Rotation);
+    void fireBullet();
+    void setFireRate(const float &FireRate);
+    float calculateDistanceTo(AActor *Actor);
 
-    UPROPERTY(EditAnywhere)
-    int cube_id;
-    volatile bool died;
+
+    volatile float fire_rate;
+    volatile bool fire_free;
+    volatile int cube_id;
 
 };

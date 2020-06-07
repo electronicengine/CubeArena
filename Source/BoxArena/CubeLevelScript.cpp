@@ -5,7 +5,7 @@
 #include "Engine/Engine.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "DestructableCubes.h"
 
 
 ACubeLevelScript::ACubeLevelScript() : arena_size{7000.0f, 7000.0f, 55.0f}
@@ -18,9 +18,30 @@ ACubeLevelScript::ACubeLevelScript() : arena_size{7000.0f, 7000.0f, 55.0f}
     time_to_count = 0;
     user_point = 0;
     toBeExecuted = NULL;
+    spawn_count = MIN_SPAWN_COUNT;
+    fire_rate = LONGEST_FIRE_RATE +1;
 
-    spawned_num = 0;
+}
 
+
+
+void ACubeLevelScript::spawnDestrucableCubes()
+{
+    for(int i=0; i<4; i++)
+    {
+
+
+        const FVector &random_location = FVector(FMath::RandRange(-7000.0f, 7000.0f),
+                                                 FMath::RandRange(-7000.0f, 7000.0f), arena_size.Z);
+
+        const FRotator &random_rotation = FRotator(0,
+                                                   FMath::RandRange(0.0, 360.0f),
+                                                   0);
+
+        GetWorld()->SpawnActor<ADestructableCubes>(destructible_cube_container, random_location, random_rotation);
+
+
+    }
 }
 
 
@@ -70,7 +91,7 @@ void ACubeLevelScript::attachUserToLevelScript(AUserCube *UserCube)
 
 void ACubeLevelScript::aiBulletHitCallBack()
 {
-
+    user_cube->applyDamage();
 }
 
 
@@ -80,41 +101,71 @@ void ACubeLevelScript::userBulletHitCallBack(AAICube *AiCube, const FVector Impa
 
 
 
-    int cube_id = AiCube->getAiId();
-
-    std::list<AAICube *>::iterator it;
-
-    for(it = ai_list.begin(); it != ai_list.end(); it++)
+    if(AiCube != NULL)
     {
-        if(cube_id == (*it)->getAiId())
+        int cube_id = AiCube->getAiId();
+
+        std::list<int>::iterator it;
+
+
+        for(it = id_list.begin(); it != id_list.end(); it++)
         {
+            if(cube_id == (*it))
+            {
 
-            spawned_num--;
+                user_cube->setSolidColor(AiCube->getSolidColor());
+                user_cube->setScoreAndBulletCap(1, 5);
 
-            user_cube->setSolidColor(AiCube->getSolidColor());
-
-            user_point++;
-            AiCube->killTheCube(ImpactPoint);
+                AiCube->killTheCube(ImpactPoint);
 
 
-            ai_list.erase(it++);
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Left AICube Num: ") + FString::FromInt(ai_list.size())
-                                            + "  - " + FString::FromInt(spawned_num));
+                id_list.erase(it++);
+//                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Left AICube Num: ") + FString::FromInt(id_list.size()));
 
+            }
+        }
+
+        if(id_list.size() == 0)
+        {
+//            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Next Level "));
+            game_current_level++;
+
+            id_list.clear();
+
+            toBeExecuted = std::bind(&ACubeLevelScript::spawnAI, this);
         }
     }
 
+}
 
 
 
-    if(spawned_num == 0)
+void ACubeLevelScript::destructibleHitCallBack()
+{
+//    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Destructible Hit"));
+user_cube->setScoreAndBulletCap(1, 5);
+}
+
+
+
+int ACubeLevelScript::takeId(AAICube *Cube)
+{
+    static int id = 0;
+
+    id_list.push_back(++id);
+
+    if(game_current_level % 3 != 0)
     {
-//        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Next Level "));
-        game_current_level++;
-
-        toBeExecuted = std::bind(&ACubeLevelScript::spawnAI, this);
+        fire_rate--;
+        if(fire_rate <= 1.0f)
+            fire_rate = 0.5f;
     }
+    else
+        fire_rate = LONGEST_FIRE_RATE;
 
+    Cube->setFireRate(fire_rate);
+
+    return id;
 }
 
 
@@ -123,7 +174,12 @@ void ACubeLevelScript::spawnAI()
 {
 
     AAICube *ai_cube;
-    for(int i=0; i<game_current_level * difficulty; ++i)
+    static int id = 0;
+
+    if(game_current_level % 3 == 0)
+        spawn_count = difficulty * spawn_count;
+
+    for(int i=0; i<spawn_count; i++)
     {
 
 
@@ -132,15 +188,14 @@ void ACubeLevelScript::spawnAI()
 
         ai_cube = GetWorld()->SpawnActor<AAICube>(ai_cube_container, random_location, FRotator(0,0,0));
 
-        ai_list.push_back(ai_cube);
 
     }
 
-    spawned_num = game_current_level * difficulty;
-
+    spawnDestrucableCubes();
     waitUntilTick(50);
 
-    toBeExecuted = std::bind(&ACubeLevelScript::assignIdtoAI, this);
+//    toBeExecuted = std::bind(&ACubeLevelScript::assignIdtoAI, this);
+    toBeExecuted = NULL;
 
 }
 
@@ -155,17 +210,15 @@ void ACubeLevelScript::waitUntilTick(const int &TickToWait)
 
 void ACubeLevelScript::assignIdtoAI()
 {
+//    static int id = 0;
 
-    static int id = 0;
-    for(std::list<AAICube*>::iterator it=ai_list.begin(); it!=ai_list.end(); it++)
-    {
-        if((*it) != NULL)
-            (*it)->assignAiId(id++);
-    }
+//    for(int i=0; i<ai_list.size(); i++)
+//    {
+//        id_list.push_back(id);
+//        ai_list[i]->assignAiId(id++);
+//    }
 
-    id = 0;
 
-    toBeExecuted = NULL;
 
 }
 

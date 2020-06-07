@@ -242,6 +242,9 @@
     <Include Path="/home/yusuf/Documents/Unreal Projects/BoxArena/Source" />
     <Include Path="/home/yusuf/UnrealEngine-release/Engine/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/AugmentedReality" />
     <Include Path="/home/yusuf/UnrealEngine-release/Engine/Source/Runtime/AugmentedReality/Public" />
+    <Include Path="/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/ApexDestruction" />
+    <Include Path="/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source" />
+    <Include Path="/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public" />
     <Include Path="/home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include" />
     <Include Path="/home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include/cudamanager" />
     <Include Path="/home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include/filebuf" />

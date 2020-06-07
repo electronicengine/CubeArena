@@ -37,6 +37,9 @@ class BOXARENA_API AUserCube : public ACharacter
     TSubclassOf<class ABullet> bullet_container;
 
     FVector  solid_color;
+    float   user_health;
+    int     user_bullet_cap;
+    int     user_score;
 
     void moveForward(float Value);
     void moveRight(float Value);
@@ -53,6 +56,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+    UFUNCTION(BlueprintImplementableEvent,  Category="UserPanel")
+    void updateHealth(float Health);
+
+    UFUNCTION(BlueprintImplementableEvent,  Category="UserPanel")
+    void updateScore(int Score);
+
+    UFUNCTION(BlueprintImplementableEvent,  Category="UserPanel")
+    void updateBulletCap(int BulletCap);
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -61,5 +74,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     void setSolidColor(const FVector &Color);
+    void setScoreAndBulletCap(int Score, int Bullet);
+    void applyDamage();
 
 };

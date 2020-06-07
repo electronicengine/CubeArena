@@ -240,6 +240,9 @@ INCLUDEPATH += \
 	Source \
 	/home/yusuf/UnrealEngine-release/Engine/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/AugmentedReality \
 	/home/yusuf/UnrealEngine-release/Engine/Source/Runtime/AugmentedReality/Public \
+	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/ApexDestruction \
+	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source \
+	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public \
 	/home/yusuf/UnrealEngine-release/Engine/Source/Runtime/Launch/Private \
 	/home/yusuf/UnrealEngine-release/Engine/Source/Programs/BenchmarkTool/Private \
 	/home/yusuf/UnrealEngine-release/Engine/Intermediate/Build/Linux/B4D820EA/BenchmarkTool/Inc/Core \
@@ -2946,9 +2949,6 @@ INCLUDEPATH += \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/AnimDistanceMatching/Source/AnimDistanceMatching/Public \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ThirdParty \
-	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/ApexDestruction \
-	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source \
-	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestructionEditor/Private \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/ApexDestructionEditor \
 	/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/AR/Google/GoogleARCore/Source/GoogleARCoreBase/Private \

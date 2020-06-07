@@ -10,7 +10,12 @@
 #include <functional>
 #include <list>
 #include <iostream>
+#include <vector>
 #include "CubeLevelScript.generated.h"
+
+
+#define LONGEST_FIRE_RATE   4
+#define MIN_SPAWN_COUNT     1
 
 /**
  * 
@@ -25,7 +30,10 @@ class BOXARENA_API ACubeLevelScript : public ALevelScriptActor
     UPROPERTY(EditDefaultsOnly, Category=AICube)
     TSubclassOf<class AAICube> ai_cube_container;
 
-    std::list<AAICube *> ai_list;
+    UPROPERTY(EditDefaultsOnly, Category=AICube)
+    TSubclassOf<class ADestructableCubes> destructible_cube_container;
+
+    std::list<int> id_list;
 
     /** Projectile class to spawn */
     UPROPERTY(EditDefaultsOnly, Category=UserCube)
@@ -33,9 +41,10 @@ class BOXARENA_API ACubeLevelScript : public ALevelScriptActor
 
     int difficulty;
     int game_current_level;
+    float fire_rate;
+    int spawn_count;
     int time_to_count;
     int user_point;
-    int spawned_num;
 
     void waitUntilTick(const int &TickToWait);
     void spawnAI();
@@ -56,18 +65,19 @@ protected:
     virtual void Tick(float DeltaTime) override;
 
 
-
 public:
 
     ACubeLevelScript();
 
+    void spawnDestrucableCubes();
 
     void attachUserToLevelScript(AUserCube *UserCube);
 
     void aiBulletHitCallBack();
-
     void userBulletHitCallBack(AAICube *AiCube, const FVector ImpactPoint);
+    void destructibleHitCallBack();
 
+    int takeId(AAICube *AICube);
 
 
 

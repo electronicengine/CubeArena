@@ -239,6 +239,9 @@
 /home/yusuf/Documents/Unreal Projects/BoxArena/Source
 /home/yusuf/UnrealEngine-release/Engine/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/AugmentedReality
 /home/yusuf/UnrealEngine-release/Engine/Source/Runtime/AugmentedReality/Public
+/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Intermediate/Build/Linux/B4D820EA/UE4Editor/Inc/ApexDestruction
+/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source
+/home/yusuf/UnrealEngine-release/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public
 /home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include
 /home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include/cudamanager
 /home/yusuf/UnrealEngine-release/Engine/Source/ThirdParty/PhysX3/PxShared/include/filebuf

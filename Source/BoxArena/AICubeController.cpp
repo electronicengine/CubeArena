@@ -1,3 +1,4 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -33,79 +34,99 @@ AAICubeController::AAICubeController()
 
     side = -1;
     direction = 1;
-    time_to_count = 0;
+    time_togo_forward = 30;
+    time_togo_side = 50;
+
     toBeExecuted = NULL;
+
+    min_dist_to_close = 600.0f;
+    min_dist_to_fire = 3200.0f;
 }
 
 
 
-void AAICubeController::getCloserToUser(AUserCube *User)
+void AAICubeController::getCloserToUser()
 {
     int ret;
+    AAICube *ai_cube = Cast<AAICube>(GetPawn());
+    const float &target_distance = ai_cube->calculateDistanceTo(user_cube);
 
-    if(Cast<AAICube>(GetPawn())->died != true)
+    const FVector &user_location = user_cube->GetActorLocation();
+    const FVector &ai_location = GetPawn()->GetActorLocation();
+    const FRotator &ai_rotation = UKismetMathLibrary::FindLookAtRotation(ai_location, user_location);
+
+
+    if(target_distance <= min_dist_to_fire)
+          ai_cube->fire_free = true;
+    else
+        ai_cube->fire_free = false;
+
+    if(target_distance <= distance_to_close)
     {
 
-        ret = MoveToActor(user_cube, FMath::RandRange(600.0f, 3000.0f));
+        distance_to_close = FMath::RandRange(min_dist_to_close, min_dist_to_fire);
 
-        if(ret != EPathFollowingRequestResult::RequestSuccessful)
-        {
-            time_to_count = FMath::RandRange(30, 100);
-            toBeExecuted = std::bind(&AAICubeController::turnAroundRight, this, User);
-        }
+        toBeExecuted = std::bind(&AAICubeController::turnAround, this);
+
     }
-
-
-}
-
-
-
-
-
-void AAICubeController::fireToUser(AUserCube *User)
-{
-
-}
-
-
-
-void AAICubeController::turnAroundRight(AUserCube *User)
-{
-
-
-    if(Cast<AAICube>(GetPawn())->died != true)
+    else
     {
-        time_to_count--;
 
-
-        if(GetPawn()->GetDistanceTo(User) >= 3500)
-            toBeExecuted = std::bind(&AAICubeController::getCloserToUser, this, User);
-
-        const FVector &user_location = User->GetActorLocation();
-        const FVector &ai_location = GetPawn()->GetActorLocation();
-
-        GetPawn()->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(ai_location, user_location));
-
-        Cast<AAICube>(GetPawn())->moveRight(direction);
-        Cast<AAICube>(GetPawn())->moveForward(side);
-
-        if(time_to_count == 0)
-        {
-
-            Cast<AAICube>(GetPawn())->Jump();
-            direction = -1*direction;
-            side = -1*side;
-
-            time_to_count =  FMath::RandRange(30, 100);
-        }
+        ai_cube->turnThatRotation(ai_rotation);
+        ai_cube->moveForward(FORWARD);
     }
 
 }
 
 
 
-void AAICubeController::turnAroundLeft(AUserCube *User)
+void AAICubeController::turnAround()
 {
+
+    AAICube *ai_cube = Cast<AAICube>(GetPawn());
+    const float &target_distance = ai_cube->calculateDistanceTo(user_cube);
+
+
+    const FVector &user_location = user_cube->GetActorLocation();
+    const FVector &ai_location = GetPawn()->GetActorLocation();
+    const FRotator &ai_rotation = UKismetMathLibrary::FindLookAtRotation(ai_location, user_location);
+
+
+
+    if(target_distance >= min_dist_to_fire || target_distance <= min_dist_to_close)
+    {
+        distance_to_close = FMath::RandRange(min_dist_to_close, min_dist_to_fire);
+        toBeExecuted = std::bind(&AAICubeController::getCloserToUser, this);
+    }
+    else
+    {
+        time_togo_forward--;
+        time_togo_side--;
+
+        ai_cube->turnThatRotation(ai_rotation);
+        ai_cube->moveForward(direction);
+        ai_cube->moveRight(side);
+
+        if(time_togo_forward <= 0)
+        {
+
+            ai_cube->jump();
+
+            direction = (direction) * (-1);
+
+            time_togo_forward = FMath::RandRange(30, 100);
+        }
+
+        if(time_togo_side <= 0)
+        {
+            ai_cube->jump();
+
+            side = (side) * (-1);
+
+            time_togo_side = FMath::RandRange(30, 100);
+        }
+    }
+
 
 }
 
@@ -122,13 +143,8 @@ void AAICubeController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    if(user_cube != NULL)
-        Cast<AAICube>(GetPawn())->setTargetDistance(GetPawn()->GetDistanceTo(user_cube));
-
     if(toBeExecuted != NULL)
-        toBeExecuted(user_cube);
-
-
+        toBeExecuted();
 
 }
 
@@ -160,7 +176,6 @@ void AAICubeController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors
 
     int num = UpdatedActors.Num();
 
-
     for(int i=0; i < num;  i++)
     {
 
@@ -169,11 +184,10 @@ void AAICubeController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors
         if(user != NULL & enemy_detected == false)
         {
             enemy_detected = true;
-            AAICube *ai_cube = Cast<AAICube>(GetPawn());
 
-//            ai_cube->moveRight(1);
-//            FRotation
-//            toBeExecuted = std::bind(&AAICubeController::getCloserToUser, this, user);
+
+            distance_to_close = FMath::RandRange(min_dist_to_close, min_dist_to_fire);
+            toBeExecuted = std::bind(&AAICubeController::getCloserToUser, this);
             user_cube = user;
 
         }

@@ -15877,6 +15877,7 @@ HEADERS += \
 	"$$BoxArenaRootPath/Source/BoxArena/BoxArenaGameMode.h" \
 	"$$BoxArenaRootPath/Source/BoxArena/Bullet.h" \
 	"$$BoxArenaRootPath/Source/BoxArena/CubeLevelScript.h" \
+	"$$BoxArenaRootPath/Source/BoxArena/DestructableCubes.h" \
 	"$$BoxArenaRootPath/Source/BoxArena/UserCube.h" \
  
 

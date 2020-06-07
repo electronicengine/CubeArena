@@ -12,6 +12,11 @@
 
 #include "AICubeController.generated.h"
 
+
+#define FORWARD                     1
+#define BACKWARD                    -1
+#define GO_RIGHT                    1
+#define FO_LEFT                     -1
 /**
  * 
  */
@@ -38,19 +43,22 @@ private:
     UPROPERTY(VisibleAnywhere, Category = AI)
     class UAISenseConfig_Sight* SightConfig;
 
-    std::function<void(class AUserCube *)> toBeExecuted;
-    int time_to_count;
+    std::function<void()> toBeExecuted;
+    int time_togo_side;
+    int time_togo_forward;
 
     class AUserCube *user_cube;
+    float distance_to_close;
+
+    float min_dist_to_close;
+    float min_dist_to_fire;
 
 
-    void getCloserToUser(class AUserCube *User);
-    void fireToUser(class AUserCube *User);
-    void turnAroundRight(class AUserCube *User);
-    void turnAroundLeft(class AUserCube *User);
+    void getCloserToUser();
+    void turnAround();
+
     int direction;
     int side;
-
 
     bool enemy_detected = false;
 

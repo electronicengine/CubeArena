@@ -4,21 +4,11 @@
 #include "UserCube.h"
 #include "CubeLevelScript.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/InputComponent.h"
-#include "GameFramework/Controller.h"
-#include "DrawDebugHelpers.h"
-#include "Components/BoxComponent.h"
 #include "Engine/Engine.h"
-#include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
-#include "MotionControllerComponent.h"
-#include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "Bullet.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "DestructibleComponent.h"
 
 
@@ -37,11 +27,14 @@ AUserCube::AUserCube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRan
     destructable_component->SetupAttachment(RootComponent);
 
 
- ;
     base_turn_rate = 45.0f;
     look_up_rate = 45.0f;
 
     trace_distance = 2000.0f;
+
+    user_score = 0;
+    user_health = 1.0f;
+    user_bullet_cap = 30;
 
 }
 
@@ -56,6 +49,7 @@ void AUserCube::BeginPlay()
 
     destructable_component->CreateDynamicMaterialInstance(0);
     destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
+
 	
 }
 
@@ -95,6 +89,40 @@ void AUserCube::setSolidColor(const FVector &Color)
 
     destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 
+
+
+}
+
+
+
+void AUserCube::setScoreAndBulletCap(int Score, int Bullet)
+{
+    user_score += Score;
+    user_bullet_cap += Bullet;
+    updateScore(user_score);
+    updateBulletCap(user_bullet_cap);
+}
+
+
+
+void AUserCube::applyDamage()
+{
+    user_health -= 0.1;
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::SanitizeFloat(user_health));
+
+    if(user_health > 0.0f)
+    {
+        updateHealth(user_health);
+
+    }
+    else if(user_health <= 0.0f)
+    {
+        destructable_component->ApplyRadiusDamage(20.f, GetActorLocation(), 20.0f, 20.0f, true);
+
+        FGenericPlatformMisc::RequestExit(false);
+//        GetWorld()->GetTimerManager().SetTimer(timer_handle_destroy, this, &AAICube::eraseAI, 2.0f, false);
+    }
 }
 
 
@@ -145,7 +173,7 @@ void AUserCube::fireBullet()
 {
 
     ABullet *bullet_ptr;
-    if (bullet_container != NULL)
+    if (bullet_container != NULL && user_bullet_cap > 0)
     {
 
         UWorld* const World = GetWorld();
@@ -164,6 +192,11 @@ void AUserCube::fireBullet()
 //
             bullet_ptr->setSolidColor(solid_color);
             bullet_ptr->setBulletOwner(this);
+
+            user_bullet_cap--;
+
+
+            updateBulletCap(user_bullet_cap);
 
         }
     }

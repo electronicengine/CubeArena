@@ -5,7 +5,7 @@
 #include "CubeLevelScript.h"
 #include "Bullet.h"
 #include "DestructibleComponent.h"
-
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -18,10 +18,9 @@ AAICube::AAICube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRange(0
     destructable_component = CreateDefaultSubobject<UDestructibleComponent>(TEXT("DestructableComponent"));
     destructable_component->SetupAttachment(RootComponent);
 
-    dying_counter = 200;
+
     died = false;
-    time_to_count = 200;
-    toBeExecuted = NULL;
+    fire_free = false;
 }
 
 
@@ -33,10 +32,12 @@ void AAICube::BeginPlay()
 
     level_script = Cast<ACubeLevelScript>(GetWorld()->GetLevelScriptActor());
 
+    cube_id = level_script->takeId(this);
+
     destructable_component->CreateDynamicMaterialInstance(0);
     destructable_component->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
 
-
+    GetWorld()->GetTimerManager().ClearTimer(timer_handle_destroy);
 
 }
 
@@ -46,30 +47,6 @@ void AAICube::BeginPlay()
 void AAICube::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-    time_to_count--;
-
-    if(time_to_count == 0)
-    {
-        if(died != true)
-        {
-            if(target_distance <= 3500)
-                fireBullet();
-            time_to_count = 200;
-        }
-
-    }
-
-    if(died == true)
-    {
-//        dying_counter--;
-//        if(dying_counter == 0)
-//            Destroy();
-    }
-
-    InitialLifeSpan = 0;
-    SetLifeSpan(0);
-
 }
 
 
@@ -85,10 +62,11 @@ void AAICube::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AAICube::killTheCube(const FVector &ImpactPoint)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Cube Killing.."));
-    SetLifeSpan(40);
-    destructable_component->ApplyRadiusDamage(15.f, ImpactPoint, 5.0f, 5.0f, true);
+//    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Cube Killing.."));
+    destructable_component->ApplyRadiusDamage(20.f, GetActorLocation(), 20.0f, 20.0f, true);
     died = true;
+    GetWorld()->GetTimerManager().SetTimer(timer_handle_destroy, this, &AAICube::eraseAI, 2.0f, false);
+
 }
 
 
@@ -104,28 +82,13 @@ void AAICube::assignAiId(int Id)
 
 
 
-int AAICube::getAiId()
-{
-    return cube_id;
-}
-
-FVector &AAICube::getSolidColor()
-{
-    return solid_color;
-}
-
-
-
 void AAICube::moveForward(float Value)
 {
-    if((Controller) && Value != 0.0f)
+    if((Controller) && Value != 0.0f && died != true)
     {
         const FVector direction = FRotationMatrix(FRotator(0, Controller->GetControlRotation().Yaw, 0)).GetUnitAxis(EAxis::X);
 
-
         AddMovementInput(direction, Value);
-
-
     }
 }
 
@@ -133,7 +96,7 @@ void AAICube::moveForward(float Value)
 
 void AAICube::moveRight(float Value)
 {
-    if((Controller) && Value != 0.0f)
+    if((Controller) && Value != 0.0f && died != true)
     {
         const FVector direction = FRotationMatrix(FRotator(0, Controller->GetControlRotation().Yaw, 0)).GetUnitAxis(EAxis::Y);
 
@@ -143,29 +106,12 @@ void AAICube::moveRight(float Value)
 
 
 
-void AAICube::turn(FRotator &Rotation)
-{
-//    AddControllerPitchInput((Value * look_up_rate * (float)(GetWorld()->GetDeltaSeconds())));
-
-}
-
-
-
-void AAICube:: setTargetDistance(float Distance)
-{
-    target_distance = Distance;
-
-
-}
-
-
-
 void AAICube::fireBullet()
 {
 
     ABullet *bullet;
 
-    if (bullet_container != NULL)
+    if (bullet_container != NULL && died != true && fire_free == true)
     {
         UWorld* const World = GetWorld();
         if (World != NULL)
@@ -178,16 +124,8 @@ void AAICube::fireBullet()
             spawn_rotation= GetActorRotation();
             spawn_location = GetActorLocation() + (spawn_rotation.Vector() * 30) ;
 
-            if(target_distance >= 3200)
-                spawn_rotation.Pitch = spawn_rotation.Pitch + 2.5f;
-            else if((target_distance >= 5000))
-                spawn_rotation.Pitch = spawn_rotation.Pitch + 5.0f;
-            else if((target_distance >= 7000))
-                spawn_rotation.Pitch = spawn_rotation.Pitch + 6.0f;
-            else
-                spawn_rotation.Pitch = spawn_rotation.Pitch + 1.5f;
 
-//            spawn_rotation.GetDenormalized();
+            spawn_rotation.Pitch = spawn_rotation.Pitch + FIRE_OFSETT_PITCH;
 
             bullet = World->SpawnActor<ABullet>(bullet_container, spawn_location, spawn_rotation);
             bullet->setSolidColor(solid_color);
@@ -198,3 +136,56 @@ void AAICube::fireBullet()
 }
 
 
+
+void AAICube::setFireRate(const float &FireRate)
+{
+
+
+    GetWorld()->GetTimerManager().ClearTimer(timer_handle_fire);
+    GetWorld()->GetTimerManager().SetTimer(timer_handle_fire, this, &AAICube::fireBullet, FireRate + FMath::RandRange(0.0f, 0.5f), true);
+}
+
+
+
+float AAICube::calculateDistanceTo(AActor *Actor)
+{
+    return GetDistanceTo(Actor);
+}
+
+
+
+void AAICube::eraseAI()
+{
+    Destroy();
+}
+
+
+
+int AAICube::getAiId()
+{
+    int value = cube_id;
+
+    return value;
+}
+
+
+
+FVector &AAICube::getSolidColor()
+{
+    return solid_color;
+}
+
+
+
+void AAICube::jump()
+{
+    if(died != true)
+        Jump();
+}
+
+
+
+void AAICube::turnThatRotation(const FRotator &Rotation)
+{
+    SetActorRotation(Rotation);
+}

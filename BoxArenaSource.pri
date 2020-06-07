@@ -11911,6 +11911,7 @@ SOURCES += \
 	"$$BoxArenaRootPath/Source/BoxArena/BoxArenaGameMode.cpp" \
 	"$$BoxArenaRootPath/Source/BoxArena/Bullet.cpp" \
 	"$$BoxArenaRootPath/Source/BoxArena/CubeLevelScript.cpp" \
+	"$$BoxArenaRootPath/Source/BoxArena/DestructableCubes.cpp" \
 	"$$BoxArenaRootPath/Source/BoxArena/UserCube.cpp" \
  
 
