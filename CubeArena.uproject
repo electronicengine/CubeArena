@@ -1,0 +1,18 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{2A9382C2-31DB-4166-9F5B-311223C40F61}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CubeArena",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"AIModule",
+				"UMG"
+			]
+		}
+	]
+}

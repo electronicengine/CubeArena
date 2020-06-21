@@ -2,19 +2,19 @@
 # *DO NOT EDIT*
 
 UNREALROOTPATH = /home/yusuf/UnrealEngine-release
-GAMEPROJECTFILE =/home/yusuf/Documents/Unreal Projects/BoxArena/BoxArena.uproject
+GAMEPROJECTFILE =/home/yusuf/Documents/Unreal Projects/CubeArena/CubeArena.uproject
 
 TARGETS = \
-	BoxArena-Linux-Debug  \
-	BoxArena-Linux-DebugGame  \
-	BoxArena-Linux-Shipping  \
-	BoxArena-Linux-Test  \
-	BoxArena \
-	BoxArenaEditor-Linux-Debug  \
-	BoxArenaEditor-Linux-DebugGame  \
-	BoxArenaEditor-Linux-Shipping  \
-	BoxArenaEditor-Linux-Test  \
-	BoxArenaEditor \
+	CubeArena-Linux-Debug  \
+	CubeArena-Linux-DebugGame  \
+	CubeArena-Linux-Shipping  \
+	CubeArena-Linux-Test  \
+	CubeArena \
+	CubeArenaEditor-Linux-Debug  \
+	CubeArenaEditor-Linux-DebugGame  \
+	CubeArenaEditor-Linux-Shipping  \
+	CubeArenaEditor-Linux-Test  \
+	CubeArenaEditor \
 	BenchmarkTool-Linux-Debug  \
 	BenchmarkTool-Linux-DebugGame  \
 	BenchmarkTool-Linux-Shipping  \
@@ -259,35 +259,35 @@ StandardSet: RequiredTools UnrealFrontend UE4Editor UnrealInsights
 DebugSet: RequiredTools UnrealFrontend-Linux-Debug UE4Editor-Linux-Debug
 
 
-BoxArena-Linux-Debug:
-	 $(PROJECTBUILD) BoxArena Linux Debug  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArena-Linux-Debug:
+	 $(PROJECTBUILD) CubeArena Linux Debug  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArena-Linux-DebugGame:
-	 $(PROJECTBUILD) BoxArena Linux DebugGame  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArena-Linux-DebugGame:
+	 $(PROJECTBUILD) CubeArena Linux DebugGame  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArena-Linux-Shipping:
-	 $(PROJECTBUILD) BoxArena Linux Shipping  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArena-Linux-Shipping:
+	 $(PROJECTBUILD) CubeArena Linux Shipping  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArena-Linux-Test:
-	 $(PROJECTBUILD) BoxArena Linux Test  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArena-Linux-Test:
+	 $(PROJECTBUILD) CubeArena Linux Test  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArena:
-	 $(PROJECTBUILD) BoxArena Linux Development  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArena:
+	 $(PROJECTBUILD) CubeArena Linux Development  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArenaEditor-Linux-Debug:
-	 $(PROJECTBUILD) BoxArenaEditor Linux Debug  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArenaEditor-Linux-Debug:
+	 $(PROJECTBUILD) CubeArenaEditor Linux Debug  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArenaEditor-Linux-DebugGame:
-	 $(PROJECTBUILD) BoxArenaEditor Linux DebugGame  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArenaEditor-Linux-DebugGame:
+	 $(PROJECTBUILD) CubeArenaEditor Linux DebugGame  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArenaEditor-Linux-Shipping:
-	 $(PROJECTBUILD) BoxArenaEditor Linux Shipping  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArenaEditor-Linux-Shipping:
+	 $(PROJECTBUILD) CubeArenaEditor Linux Shipping  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArenaEditor-Linux-Test:
-	 $(PROJECTBUILD) BoxArenaEditor Linux Test  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArenaEditor-Linux-Test:
+	 $(PROJECTBUILD) CubeArenaEditor Linux Test  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
-BoxArenaEditor:
-	 $(PROJECTBUILD) BoxArenaEditor Linux Development  -project="$(GAMEPROJECTFILE)" $(ARGS)
+CubeArenaEditor:
+	 $(PROJECTBUILD) CubeArenaEditor Linux Development  -project="$(GAMEPROJECTFILE)" $(ARGS)
 
 BenchmarkTool-Linux-Debug:
 	 $(BUILD) BenchmarkTool Linux Debug  -project="$(GAMEPROJECTFILE)" $(ARGS)
