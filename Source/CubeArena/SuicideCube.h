@@ -24,6 +24,15 @@ class CUBEARENA_API ASuicideCube : public ACharacter
     UPROPERTY(EditDefaultsOnly, Category=Destructible)
     TSubclassOf<class ADestructibleCube> destructible_container;
 
+    UPROPERTY(EditAnywhere, Category=SpawnSound)
+    class USoundCue *spawn_sound;
+
+    UPROPERTY(EditAnywhere, Category=LoughSound)
+    class USoundCue *jump_sound;
+
+    UPROPERTY(EditDefaultsOnly, Category=Audio)
+    class UAudioComponent *audio_component;
+
     bool died;
 
     void selectAFace();

@@ -33,6 +33,14 @@ public:
     UPROPERTY(EditAnywhere, Category=Heal)
     TSubclassOf<class AHealActor> heal_container;
 
+    UPROPERTY(EditAnywhere, Category=SpawnSound)
+    class USoundCue *spawn_sound;
+
+    UPROPERTY(EditAnywhere, Category=LoughSound)
+    class USoundCue *jump_sound;
+
+    UPROPERTY(EditDefaultsOnly, Category=Audio)
+    class UAudioComponent *audio_component;
 
     bool died;
 

@@ -92,7 +92,7 @@ void ADestructibleObjects::destroyComp(UPrimitiveComponent *OtherComp, const FVe
         OtherComp->DestroyComponent();
 
         if(FMath::RandRange(0, 120) % 120 == 0)
-            GetWorld()->SpawnActor<AHealActor>(heal_container, OtherComp->GetComponentLocation(), rotation);
+            GetWorld()->SpawnActor<AHealActor>(heal_container, FVector(loc.X, loc.Y, 100.0f), FRotator(0,0,0));
 
         if(destructible_object_number == 0)
             Destroy();

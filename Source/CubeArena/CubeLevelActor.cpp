@@ -12,6 +12,9 @@
 #include "UserCube.h"
 #include "TimerManager.h"
 #include "BossCube.h"
+#include "Engine/PostProcessVolume.h"
+#include "Components/SkyLightComponent.h"
+
 
 ACubeLevelActor::ACubeLevelActor() : arena_size{7000.0f, 7000.0f, 55.0f}
 {
@@ -26,7 +29,9 @@ ACubeLevelActor::ACubeLevelActor() : arena_size{7000.0f, 7000.0f, 55.0f}
     spawn_count = MIN_SPAWN_COUNT;
     fire_rate = LONGEST_FIRE_RATE;
 
+
     destructible_list.clear();
+
 
 }
 
@@ -52,6 +57,8 @@ void ACubeLevelActor::BeginPlay()
         GetWorld()->GetTimerManager().SetTimer(user_cube->timer_handle, user_cube, &AUserCube::setGravityTreshold, 1.0f, false);
     }
 
+    if(sky_light != NULL)
+        sky_light->SetIntensity(Cast<UCubeGameInstance>(GetGameInstance())->getLightIntensity());
 
     toBeExecuted = std::bind(&ACubeLevelActor::spawnAI, this);
 
@@ -134,6 +141,7 @@ void ACubeLevelActor::aiBulletHitCallBack()
 {
     if(user_cube != NULL)
         user_cube->applyDamage();
+
 }
 
 
@@ -160,6 +168,7 @@ void ACubeLevelActor::userBulletHitCallBack(AAICube *AiCube, const FVector Impac
                     user_cube->setSolidColor(AiCube->getSolidColor());
                     user_cube->setScoreAndBulletCap(1, 5);
                 }
+
 
 
                 if(AiCube != NULL)
@@ -192,6 +201,7 @@ void ACubeLevelActor::suicideCubeHitCallBack()
 {
     if(user_cube != NULL)
         user_cube->setScoreAndBulletCap(1, 3);
+
 }
 
 
@@ -200,6 +210,7 @@ void ACubeLevelActor::destructibleHitCallBack()
 {
     if(user_cube != NULL)
         user_cube->setScoreAndBulletCap(1,1);
+
 }
 
 
@@ -208,6 +219,8 @@ void ACubeLevelActor::suicideCubeExplodeCallback()
 {
     if(user_cube != NULL)
         user_cube->applyDamage();
+
+
 }
 
 
@@ -216,6 +229,7 @@ void ACubeLevelActor::bossCubeHitCallBack()
 {
     if(user_cube != NULL)
         user_cube->setScoreAndBulletCap(1, 3);
+
 }
 
 
@@ -260,6 +274,7 @@ void ACubeLevelActor::spawnAI()
     }
 
     destructible_list.clear();
+
 
     for(int i=0; i<spawn_count; i++)
     {

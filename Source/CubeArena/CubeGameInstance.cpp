@@ -35,6 +35,12 @@ UCubeGameInstance::UCubeGameInstance() : faces{FVector(0.0f, 0.0f, 0.0f),
                                                FVector(0.8f, 0.8f, 0.0f)}
 {
 
+    base_turn_rate = 0.6f;
+    look_up_rate = 0.6f;
+    light_intensity = 3.0f;
+    sound_volume = 0.75f;
+
+
 }
 
 UUserWidget* UCubeGameInstance::loadMenuWidget()
@@ -70,4 +76,47 @@ const FVector &UCubeGameInstance::getface(int FaceId)
 
     return faces[FaceId];
 
+}
+
+
+
+void UCubeGameInstance::setTurnRate(float Value)
+{
+    base_turn_rate = Value;
+    look_up_rate = Value;
+}
+
+
+
+float UCubeGameInstance::getTurnRate()
+{
+    return base_turn_rate;
+}
+
+
+
+void UCubeGameInstance::setLightIntensity(float Value)
+{
+    light_intensity = Value;
+}
+
+
+
+float UCubeGameInstance::getLightIntensity()
+{
+    return light_intensity;
+}
+
+
+
+void UCubeGameInstance::setSoundVolume(float Value)
+{
+    sound_volume = Value;
+}
+
+
+
+float UCubeGameInstance::getSoundVolume()
+{
+    return sound_volume;
 }

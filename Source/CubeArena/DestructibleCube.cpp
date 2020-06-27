@@ -3,14 +3,22 @@
 
 #include "DestructibleCube.h"
 #include "Components/StaticMeshComponent.h"
-
-
+#include "UObject/ConstructorHelpers.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "CubeGameInstance.h"
 
 ADestructibleCube::ADestructibleCube()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+    ConstructorHelpers::FObjectFinder<USoundCue> crack_sound_cue(TEXT("SoundCue'/Game/sounds/CrackSoundCue.CrackSoundCue'"));
+    if(crack_sound_cue.Succeeded())
+        crack_sound = crack_sound_cue.Object;
+
+    audio_component = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+    audio_component->SetupAttachment(RootComponent);
 }
 
 
@@ -60,8 +68,11 @@ void ADestructibleCube::expolode(const FVector &ImpactPoint, float Violence)
         meshes->AddRadialImpulse(ImpactPoint, Violence, Violence, RIF_Constant, true);
     }
 
-    GetWorld()->GetTimerManager().SetTimer(timer_handle_destroy, this, &ADestructibleCube::eraseAI, 2.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(timer_handle_destroy, this, &ADestructibleCube::eraseAI, 5.0f, false);
 
+    audio_component->SetVolumeMultiplier(Cast<UCubeGameInstance>(GetGameInstance())->getSoundVolume());
+    audio_component->SetSound(crack_sound);
+    audio_component->Play();
 }
 
 

@@ -32,6 +32,11 @@ class CUBEARENA_API UCubeGameInstance : public UGameInstance
 
     const std::vector<FVector> faces;
 
+
+
+    UPROPERTY(EditAnywhere, Category = "Control")
+    float light_intensity;
+
 	
 protected:
 
@@ -42,5 +47,35 @@ public:
     class UUserWidget* loadUserPanel();
 
     const FVector &getface(int FaceId);
+
+    UPROPERTY(EditAnywhere, Category = "Valume")
+    float sound_volume;
+
+    UPROPERTY(EditAnywhere, Category = "Control")
+    float base_turn_rate;
+
+    UPROPERTY(EditAnywhere, Category = "Control")
+    float look_up_rate;
+
+    UFUNCTION(BlueprintCallable, Category = "Control")
+    void setTurnRate(float Value);
+
+    UFUNCTION(BlueprintCallable, Category = "Control")
+    float getTurnRate();
+
+
+    UFUNCTION(BlueprintCallable, Category = "SkyLight")
+    void setLightIntensity(float Value);
+
+    UFUNCTION(BlueprintCallable, Category = "SkyLight")
+    float getLightIntensity();
+
+    UFUNCTION(BlueprintCallable, Category = "Volume")
+    void setSoundVolume(float Value);
+
+    UFUNCTION(BlueprintCallable, Category = "Volume")
+    float getSoundVolume();
+
+
 
 };

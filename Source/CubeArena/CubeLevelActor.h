@@ -49,12 +49,18 @@ class CUBEARENA_API ACubeLevelActor : public ALevelScriptActor
      UPROPERTY(EditDefaultsOnly, Category=UserCube)
      class AUserCube *user_cube;
 
+     UPROPERTY(EditAnywhere, Category=SkyLight)
+     class USkyLightComponent *sky_light;
+
+
      int difficulty;
      int game_current_level;
      float fire_rate;
      int spawn_count;
      int time_to_count;
      int user_point;
+
+
 
      void waitUntilTick(const int &TickToWait);
      void spawnAI();

@@ -13,7 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "UserPanel.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "CubeGameInstance.h"
 
 AUserCube::AUserCube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRange(0.0f, 0.2f), FMath::RandRange(0.0f, 0.2))
 {
@@ -30,9 +30,6 @@ AUserCube::AUserCube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::RandRan
     camera->SetupAttachment(spring_arm);
 
 
-
-    base_turn_rate = 0.6f;
-    look_up_rate = 0.6f;
 
     trace_distance = 2000.0f;
 
@@ -87,8 +84,8 @@ void AUserCube::Tick(float DeltaTime)
         if((UKismetMathLibrary::Abs(new_touch_loc.X - old_touch_loc.X) <= 28) &&
                 (UKismetMathLibrary::Abs(new_touch_loc.Y - old_touch_loc.Y) <= 28))
         {
-            this->AddControllerYawInput((new_touch_loc.X - old_touch_loc.X) * (base_turn_rate));
-            this->AddControllerPitchInput((new_touch_loc.Y - old_touch_loc.Y) *(look_up_rate));
+            this->AddControllerYawInput((new_touch_loc.X - old_touch_loc.X) * (Cast<UCubeGameInstance>(GetGameInstance())->base_turn_rate));
+            this->AddControllerPitchInput((new_touch_loc.Y - old_touch_loc.Y) * ((Cast<UCubeGameInstance>(GetGameInstance())->look_up_rate)));
         }
 
         old_touch_loc = new_touch_loc;
@@ -214,12 +211,12 @@ void AUserCube::setUserPanel(UUserWidget *Panel)
 void AUserCube::moveForward(float Value)
 {
 
-    if(Value > gravity_forward_treshold)
-        Value = 1.0f;
-    else if(Value < gravity_backward_treshold)
-        Value = -1.0f;
-    else
-        Value = 0.0f;
+//    if(Value > gravity_forward_treshold)
+//        Value = 1.0f;
+//    else if(Value < gravity_backward_treshold)
+//        Value = -1.0f;
+//    else
+//        Value = 0.0f;
 
     if((Controller) && Value != 0.0f)
     {
@@ -251,7 +248,7 @@ void AUserCube::moveRight(float Value)
 
 void AUserCube::lookUpRate(float Value)
 {
-    AddControllerPitchInput((Value * look_up_rate * (float)(GetWorld()->GetDeltaSeconds())));
+    AddControllerPitchInput((Value * (Cast<UCubeGameInstance>(GetGameInstance())->base_turn_rate) * (float)(GetWorld()->GetDeltaSeconds())));
 
 }
 
@@ -259,7 +256,7 @@ void AUserCube::lookUpRate(float Value)
 
 void AUserCube::baseTurnRate(float Value)
 {
-    AddControllerYawInput(Value * base_turn_rate * (float)(GetWorld()->GetDeltaSeconds()));
+    AddControllerYawInput(Value * (Cast<UCubeGameInstance>(GetGameInstance())->base_turn_rate) * (float)(GetWorld()->GetDeltaSeconds()));
 }
 
 

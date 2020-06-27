@@ -11,12 +11,16 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CubeGameInstance.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 AAICube::AAICube() : solid_color(FMath::RandRange(0.0f, 0.2f),FMath::RandRange(0.0f, 0.15f), FMath::RandRange(0.0f, 0.2))
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
+
     ai_solid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AISolid"));
     ai_solid->SetupAttachment(RootComponent);
 
@@ -27,6 +31,29 @@ AAICube::AAICube() : solid_color(FMath::RandRange(0.0f, 0.2f),FMath::RandRange(0
     died = false;
     fire_free = false;
     fire_accurancy = 20.0f;
+
+
+    ConstructorHelpers::FObjectFinder<USoundCue> spawn_sound_cue(TEXT("SoundCue'/Game/sounds/SpawnSoundCue.SpawnSoundCue'"));
+    if(spawn_sound_cue.Succeeded())
+        spawn_sound = spawn_sound_cue.Object;
+
+    ConstructorHelpers::FObjectFinder<USoundCue> lough_sound_cue(TEXT("SoundCue'/Game/sounds/LoughSoundCue.LoughSoundCue'"));
+    if(lough_sound_cue.Succeeded())
+        lough_sound = lough_sound_cue.Object;
+
+    ConstructorHelpers::FObjectFinder<USoundCue> jump_sound_cue(TEXT("SoundCue'/Game/sounds/JumpSoundCue.JumpSoundCue'"));
+    if(jump_sound_cue.Succeeded())
+        jump_sound = jump_sound_cue.Object;
+
+    ConstructorHelpers::FObjectFinder<USoundCue> fire_sound_cue(TEXT("SoundCue'/Game/sounds/FireSoundCue.FireSoundCue'"));
+    if(fire_sound_cue.Succeeded())
+        fire_sound = fire_sound_cue.Object;
+
+
+    audio_component = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    audio_component->SetupAttachment(RootComponent);
+
+
 
 }
 
@@ -49,7 +76,12 @@ void AAICube::BeginPlay()
                                                                         FMath::RandRange(0.0f, 0.2f),
                                                                         FMath::RandRange(0.0f, 0.2f)));
 
+
     selectAFace();
+
+    audio_component->SetVolumeMultiplier(Cast<UCubeGameInstance>(GetGameInstance())->getSoundVolume());
+    audio_component->SetSound(spawn_sound);
+    audio_component->Play();
 
 
 }
@@ -68,6 +100,21 @@ void AAICube::Tick(float DeltaTime)
 void AAICube::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+
+
+void AAICube::selectLaughFace()
+{
+    UCubeGameInstance * game_instance = Cast<UCubeGameInstance>(GetGameInstance());
+
+    ai_face->SetVectorParameterValueOnMaterials(FName("FaceParam"), game_instance->getface(9)); //laughFace
+//    GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan, TEXT("lough "));
+
+
+    audio_component->SetSound(lough_sound);
+    audio_component->Play();
 
 }
 
@@ -158,10 +205,8 @@ void AAICube::fireBullet()
             FRotator spawn_rotation;
             FVector spawn_location;
 
-
             spawn_rotation= GetActorRotation();
             spawn_location = GetActorLocation() + (spawn_rotation.Vector() * 90) ;
-
 
             spawn_rotation.Pitch = spawn_rotation.Pitch + FIRE_OFSETT_PITCH;
             spawn_rotation.Yaw = spawn_rotation.Yaw + FMath::RandRange(-fire_accurancy, fire_accurancy);
@@ -169,6 +214,11 @@ void AAICube::fireBullet()
             bullet = World->SpawnActor<ABullet>(bullet_container, spawn_location, spawn_rotation);
             bullet->setSolidColor(solid_color);
             bullet->setBulletOwner(this);
+
+            audio_component->SetSound(fire_sound);
+            audio_component->Play();
+
+            selectAFace();
 
         }
     }
@@ -212,7 +262,15 @@ FVector &AAICube::getSolidColor()
 void AAICube::jump()
 {
     if(died != true)
+    {
+        if(!audio_component->IsPlaying())
+        {
+            audio_component->SetSound(jump_sound);
+            audio_component->Play();
+        }
+
         Jump();
+    }
 }
 
 

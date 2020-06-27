@@ -11,7 +11,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CubeGameInstance.h"
-
+#include "UObject/ConstructorHelpers.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -25,6 +27,18 @@ ASuicideCube::ASuicideCube() : solid_color(FMath::RandRange(0.0f, 0.3f),FMath::R
 
     cube_face = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AIFace"));
     cube_face->SetupAttachment(RootComponent);
+
+
+    ConstructorHelpers::FObjectFinder<USoundCue> spawn_sound_cue(TEXT("SoundCue'/Game/sounds/SpawnSoundCue.SpawnSoundCue'"));
+    if(spawn_sound_cue.Succeeded())
+        spawn_sound = spawn_sound_cue.Object;
+
+    ConstructorHelpers::FObjectFinder<USoundCue> jump_sound_cue(TEXT("SoundCue'/Game/sounds/JumpSoundCue.JumpSoundCue'"));
+    if(jump_sound_cue.Succeeded())
+        jump_sound = jump_sound_cue.Object;
+
+    audio_component = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    audio_component->SetupAttachment(RootComponent);
 
     died = false;
 
@@ -45,6 +59,11 @@ void ASuicideCube::BeginPlay()
     cube_face->SetVectorParameterValueOnMaterials(FName("Color"), FVector(FMath::RandRange(0.0f, 0.2f),
                                                                         FMath::RandRange(0.0f, 0.2f),
                                                                         FMath::RandRange(0.0f, 0.2f)));
+
+    audio_component->SetVolumeMultiplier(Cast<UCubeGameInstance>(GetGameInstance())->getSoundVolume());
+    audio_component->SetSound(spawn_sound);
+    audio_component->Play();
+
     selectAFace();
 
 }
@@ -136,7 +155,14 @@ void ASuicideCube::killTheCube(const FVector &ImpactPoint)
 void ASuicideCube::jump()
 {
     if(died != true)
+    {
+        if(!audio_component->IsPlaying())
+        {
+            audio_component->SetSound(jump_sound);
+            audio_component->Play();
+        }
         Jump();
+    }
 }
 
 

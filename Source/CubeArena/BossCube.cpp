@@ -12,13 +12,28 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CubeGameInstance.h"
 #include "HealActor.h"
-
+#include "UObject/ConstructorHelpers.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ABossCube::ABossCube() : solid_color(FMath::RandRange(0.0f, 0.2f), FMath::RandRange(0.0f, 0.2f), FMath::RandRange(0.0f, 0.2f))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
+
+
+    ConstructorHelpers::FObjectFinder<USoundCue> spawn_sound_cue(TEXT("SoundCue'/Game/sounds/SpawnSoundCue.SpawnSoundCue'"));
+    if(spawn_sound_cue.Succeeded())
+        spawn_sound = spawn_sound_cue.Object;
+
+
+    ConstructorHelpers::FObjectFinder<USoundCue> jump_sound_cue(TEXT("SoundCue'/Game/sounds/JumpSoundCue.JumpSoundCue'"));
+    if(jump_sound_cue.Succeeded())
+        jump_sound = jump_sound_cue.Object;
+
+    audio_component = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    audio_component->SetupAttachment(RootComponent);
 
     died = false;
     fire_free = false;
@@ -45,6 +60,10 @@ void ABossCube::BeginPlay()
 
     boss_solid->CreateDynamicMaterialInstance(0);
     boss_solid->SetVectorParameterValueOnMaterials(FName("Color"), solid_color);
+
+    audio_component->SetVolumeMultiplier(Cast<UCubeGameInstance>(GetGameInstance())->getSoundVolume());
+    audio_component->SetSound(spawn_sound);
+    audio_component->Play();
 
     selectAFace();
 	
@@ -85,7 +104,8 @@ void ABossCube::killTheCube(const FVector &ImpactPoint)
 
     if(hit_count <= 0)
     {
-        FVector player_loc ;
+        FVector player_loc;
+        const FVector &actor_loc = GetActorLocation();
         FRotator rotation;
         ADestructibleCube *destructible;
 
@@ -97,7 +117,7 @@ void ABossCube::killTheCube(const FVector &ImpactPoint)
         else
             rotation = FRotator(0,0,0);
 
-        destructible = GetWorld()->SpawnActor<ADestructibleCube>(destructible_container, GetActorLocation(), rotation);
+        destructible = GetWorld()->SpawnActor<ADestructibleCube>(destructible_container, actor_loc, rotation);
         destructible->setSolidColor(solid_color);
         destructible->SetActorScale3D(FVector(2.4f, 2.4f, 2.4f));
 
@@ -105,7 +125,7 @@ void ABossCube::killTheCube(const FVector &ImpactPoint)
         destructible->expolode(ImpactPoint, 1000.0f);
 
         if(FMath::RandRange(0, 10) % 10 == 0)
-            GetWorld()->SpawnActor<AHealActor>(heal_container, GetActorLocation(), rotation);
+            GetWorld()->SpawnActor<AHealActor>(heal_container, FVector(actor_loc.X, actor_loc.Y, 90.0f), FRotator(0,0,0));
 
         Destroy();
     }
@@ -217,7 +237,15 @@ FVector &ABossCube::getSolidColor()
 void ABossCube::jump()
 {
     if(died != true)
+    {
+        if(!audio_component->IsPlaying())
+        {
+            audio_component->SetSound(jump_sound);
+            audio_component->Play();
+        }
         Jump();
+    }
+
 }
 
 

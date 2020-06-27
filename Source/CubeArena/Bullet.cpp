@@ -12,6 +12,11 @@
 #include "DestructibleObjects.h"
 #include "SuicideCube.h"
 #include "BossCube.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+#include "CubeGameInstance.h"
+
 
 // Sets default values
 ABullet::ABullet()
@@ -39,6 +44,14 @@ ABullet::ABullet()
     projectile_movement->MaxSpeed = 6000.f;
     projectile_movement->bRotationFollowsVelocity = true;
     projectile_movement->bShouldBounce = true;
+
+
+    ConstructorHelpers::FObjectFinder<USoundCue> popping_sound_cue(TEXT("SoundCue'/Game/sounds/PoppingSoundCue.PoppingSoundCue'"));
+    if(popping_sound_cue.Succeeded())
+        popping_sound = popping_sound_cue.Object;
+
+    audio_component = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+    audio_component->SetupAttachment(RootComponent);
 
 
     // Die after 3 seconds by default
@@ -99,6 +112,11 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
 
         if(hit == false && destroyed == false)
         {
+
+            audio_component->SetSound(popping_sound);
+            audio_component->SetVolumeMultiplier(Cast<UCubeGameInstance>(GetGameInstance())->getSoundVolume());
+            audio_component->Play();
+
             UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleFX1, GetActorLocation());
 
             destroyed = true;
@@ -108,7 +126,7 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
 
             AAICube *ai_cube = Cast<AAICube>(OtherActor);
 
-            if(ai_cube != NULL && Cast<AAICube>(bullet_owner) == NULL)
+            if(ai_cube != NULL && Cast<AAICube>(bullet_owner) == NULL) // hitting ai_cube
             {
 
                 level_script->userBulletHitCallBack(ai_cube, Hit.ImpactPoint);
@@ -118,16 +136,19 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
             {
                 AUserCube *user_cube = Cast<AUserCube>(OtherActor);
 
-                if(user_cube != NULL && Cast<AUserCube>(bullet_owner) == NULL)
+                if(user_cube != NULL && Cast<AUserCube>(bullet_owner) == NULL) // hitting user_cube
                 {
                     level_script->aiBulletHitCallBack();
+
+                    if(Cast<AAICube>(bullet_owner) != NULL)
+                        Cast<AAICube>(bullet_owner)->selectLaughFace();
 
                 }
                 else
                 {
 
                     ADestructibleObjects * destructable_objects = Cast<ADestructibleObjects>(OtherActor);
-                    if(destructable_objects != NULL)
+                    if(destructable_objects != NULL) // hitting destructibles
                     {
                         destructable_objects->destroyComp(OtherComp, Hit.ImpactPoint);
                         level_script->destructibleHitCallBack();
@@ -136,7 +157,7 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
                     else
                     {
                         ASuicideCube *suicide_cube = Cast<ASuicideCube>(OtherActor);
-                        if(suicide_cube != NULL)
+                        if(suicide_cube != NULL) // hitting suicide cube
                         {
                             suicide_cube->killTheCube(Hit.ImpactPoint);
                             level_script->suicideCubeHitCallBack();
@@ -145,7 +166,7 @@ void ABullet::OnHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitive
                         else
                         {
                             ABossCube *boss_cube = Cast<ABossCube>(OtherActor);
-                            if(boss_cube != NULL)
+                            if(boss_cube != NULL) // hitting boss cube
                             {
                                 boss_cube->killTheCube(Hit.ImpactPoint);
                                 level_script->bossCubeHitCallBack();

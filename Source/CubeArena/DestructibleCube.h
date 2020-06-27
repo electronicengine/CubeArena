@@ -17,6 +17,11 @@ class CUBEARENA_API ADestructibleCube : public AActor
    FTimerHandle timer_handle_destroy;
    FTimerHandle timer_handle_fire;
 
+   UPROPERTY(EditAnywhere, Category=CrackSound)
+   class USoundCue *crack_sound;
+
+   UPROPERTY(EditDefaultsOnly, Category=Audio)
+   class UAudioComponent *audio_component;
 
    void eraseAI();
 

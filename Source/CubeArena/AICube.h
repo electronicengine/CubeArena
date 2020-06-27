@@ -32,6 +32,21 @@ class CUBEARENA_API AAICube : public ACharacter
     UPROPERTY(EditDefaultsOnly, Category=Destructible)
     TSubclassOf<class ADestructibleCube> destructible_container;
 
+    UPROPERTY(EditAnywhere, Category=SpawnSound)
+    class USoundCue *spawn_sound;
+
+    UPROPERTY(EditAnywhere, Category=LoughSound)
+    class USoundCue *lough_sound;
+
+    UPROPERTY(EditAnywhere, Category=LoughSound)
+    class USoundCue *jump_sound;
+
+    UPROPERTY(EditAnywhere, Category=FireSound)
+    class USoundCue *fire_sound;
+
+    UPROPERTY(EditDefaultsOnly, Category=Audio)
+    class UAudioComponent *audio_component;
+
     bool died;
 
 
@@ -67,6 +82,7 @@ public:
     void fireBullet();
     void setFireRate(const float &FireRate);
     float calculateDistanceTo(AActor *Actor);
+    void selectLaughFace();
 
 
     volatile float fire_rate;

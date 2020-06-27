@@ -23,6 +23,12 @@ class CUBEARENA_API ABullet : public AActor
     UPROPERTY(EditAnywhere)
     class UStaticMeshComponent *bullet_solid;
 
+    UPROPERTY(EditAnywhere, Category=PoppingSound)
+    class USoundCue *popping_sound;
+
+    UPROPERTY(EditDefaultsOnly, Category=Audio)
+    class UAudioComponent *audio_component;
+
     FVector solid_color;
     AActor *bullet_owner;
 

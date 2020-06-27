@@ -24,12 +24,6 @@ class CUBEARENA_API AUserCube : public ACharacter
     UPROPERTY(EditAnywhere, Category = "UserSolid")
     class UStaticMeshComponent *user_solid;
 
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    float base_turn_rate;
-
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    float look_up_rate;
-
     UPROPERTY(EditAnywhere, Category = "Interaction")
     float trace_distance;
 
